@@ -1,0 +1,7 @@
+﻿cg-venv/
+__pycache__/
+*.pyc
+.env
+.vscode/
+Thumbs.db
+.DS_Store
