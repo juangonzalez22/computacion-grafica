@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-ruta = "images/gengar2          .png"
+ruta = "images/gengar2.png"
 imagen = plt.imread(ruta)
 
 plt.figure(figsize=(8,8))
