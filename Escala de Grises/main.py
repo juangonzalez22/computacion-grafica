@@ -15,7 +15,7 @@ plt.title("Imagen Original")
 plt.axis("off")
 
 plt.subplot(1,2,2)
-plt.imshow(gris)
+plt.imshow(gris, cmap='gray')
 plt.title("Escala de Grises (Promedio)")
 plt.axis("off")
 

@@ -6,10 +6,12 @@ imagen = plt.imread(url)
 
 brillo = float(input("Ingrese el valor de brillo (ej: 40 o 0.2): "))
 
+imagen_luminosa = imagen.copy()
+
 if imagen.max() <= 1.0:
-    imagen_luminosa = np.clip(imagen + brillo, 0, 1)
+    imagen_luminosa[..., :3] = np.clip(imagen[..., :3] + brillo, 0, 1)
 else:
-    imagen_luminosa = np.clip(imagen + brillo, 0, 255).astype(np.uint8)
+    imagen_luminosa[..., :3] = np.clip(imagen[..., :3] + brillo, 0, 255).astype(np.uint8)
 
 plt.figure(figsize=(10,5))
 
