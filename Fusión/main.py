@@ -8,6 +8,9 @@ route2 = input("Ingrese la ruta de la segunda imagen: ")
 image1=plt.imread(route1)
 image2=plt.imread(route2)
 
+print("dtype de la imagen 1: ", image1.dtype)
+print("dtype de la imagen 2: ", image2.dtype)
+
 h, w, c = image1.shape
 image2 = np.array(Image.fromarray(image2).resize((w, h)))
 
