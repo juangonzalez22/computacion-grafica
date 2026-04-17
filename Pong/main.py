@@ -10,6 +10,9 @@ screen_size = [800, 600]
 screen = pygame.display.set_mode(screen_size)
 clock = pygame.time.Clock()
 
+collision_sound = pygame.mixer.Sound("collision.wav")
+score_sound = pygame.mixer.Sound("score.wav")
+
 # Fondos
 bg = pygame.image.load("bg.jpg").convert()
 bg = pygame.transform.scale(bg, screen_size)
@@ -38,6 +41,8 @@ player_2_points = 0
 
 font_alpha = 50
 
+last_point = 0
+
 paused = True
 pause_start = 0
 pause_duration = 1000
@@ -50,6 +55,13 @@ def random_direction():
         [-ball_speed_unit, -ball_speed_unit]
     ]
     return random.choice(directions)
+
+def direction_last_point():
+    if last_point == 1:
+        return [-ball_speed_unit, random.choice([-ball_speed_unit, ball_speed_unit])]
+    else:
+        return [ball_speed_unit, random.choice([-ball_speed_unit, ball_speed_unit])]
+
 
 running = True
 state = 0 
@@ -67,11 +79,12 @@ while running:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                state += 1
-
+                
                 if state == 0:
+                    state = 1
                     ball_speed_unit = 0
                 else:
+                    state = 0
                     ball_speed_unit = original_ball_speed_unit
                     ball_speed = random_direction()
                     paused = True
@@ -121,34 +134,47 @@ while running:
         else:
             if pygame.time.get_ticks() - pause_start > pause_duration:
                 paused = False
-                ball_speed = random_direction()
+                ball_speed = direction_last_point()
 
         if ball_pos[0] < 0:
             player_2_points += 1
+            score_sound.play()
             player_1_pos = [20, screen_size[1] // 2 - player_size[1] // 2]
             player_2_pos = [screen_size[0] - 20 - player_size[0], screen_size[1] // 2 - player_size[1] // 2]
             ball_pos = [screen_size[0] // 2 - ball_size[0] // 2,
                         screen_size[1] // 2 - ball_size[1] // 2]
             paused = True
+            last_point = 2
             pause_start = pygame.time.get_ticks()
 
         if ball_pos[0] > screen_size[0] - ball_size[0]:
             player_1_points += 1
+            score_sound.play()
             player_1_pos = [20, screen_size[1] // 2 - player_size[1] // 2]
             player_2_pos = [screen_size[0] - 20 - player_size[0], screen_size[1] // 2 - player_size[1] // 2]
             ball_pos = [screen_size[0] // 2 - ball_size[0] // 2,
                         screen_size[1] // 2 - ball_size[1] // 2]
             paused = True
+            last_point = 1
             pause_start = pygame.time.get_ticks()
 
         if ball_pos[1] < 0 or ball_pos[1] > screen_size[1] - ball_size[1]:
             ball_speed[1] = -ball_speed[1]
+            ball_speed[0] *= 1.05
+            ball_speed[1] *= 1.05
+            collision_sound.play()
 
         if player_1_points == 10 or player_2_points == 10:
             state = 1
+            ball_speed_unit = 0
 
-        pygame.draw.rect(screen, (255, 255, 255), (*player_1_pos, *player_size))
-        pygame.draw.rect(screen, (255, 255, 255), (*player_2_pos, *player_size))
+        rect1 = (*player_1_pos, *player_size)
+        pygame.draw.rect(screen, (0, 0, 0), rect1)
+        pygame.draw.rect(screen, (255, 255, 255), rect1, 1)
+
+        rect2 = (*player_2_pos, *player_size)
+        pygame.draw.rect(screen, (0, 0, 0), rect2)
+        pygame.draw.rect(screen, (255, 255, 255), rect2, 1)
 
         pygame.draw.circle(screen, (255, 255, 255),
                            (ball_pos[0] + ball_size[0] // 2,
@@ -159,11 +185,17 @@ while running:
             ball_pos[1] + ball_size[1] >= player_1_pos[1] and
             ball_pos[1] <= player_1_pos[1] + player_size[1]):
             ball_speed[0] = abs(ball_speed[0])
+            ball_speed[0] *= 1.01
+            ball_speed[1] *= 1.01
+            collision_sound.play()
 
         if (ball_pos[0] + ball_size[0] >= player_2_pos[0] and
             ball_pos[1] + ball_size[1] >= player_2_pos[1] and
             ball_pos[1] <= player_2_pos[1] + player_size[1]):
             ball_speed[0] = -abs(ball_speed[0])
+            ball_speed[0] *= 1.01
+            ball_speed[1] *= 1.01
+            collision_sound.play()
 
     elif state == 1:
         screen.blit(menu_bg, (0, 0))
@@ -182,6 +214,17 @@ while running:
             color = (200, 200, 200)
             if mouse_click:
                 state = 0
+                state = 0
+                ball_speed_unit = original_ball_speed_unit
+                ball_speed = direction_last_point()
+                paused = True
+                pause_start = pygame.time.get_ticks()
+                ball_pos = [screen_size[0] // 2 - ball_size[0] // 2,
+                            screen_size[1] // 2 - ball_size[1] // 2]
+                player_1_points = 0
+                player_2_points = 0
+                player_1_pos = [20, screen_size[1] // 2 - player_size[1] // 2]
+                player_2_pos = [screen_size[0] - 20 - player_size[0], screen_size[1] // 2 - player_size[1] // 2]
         else:
             color = (255, 255, 255)
 
@@ -236,6 +279,7 @@ while running:
             color = (200, 200, 200)
             if mouse_click:
                 state = 1
+                ball_speed_unit = 0
         else:
             color = (255, 255, 255)
 
