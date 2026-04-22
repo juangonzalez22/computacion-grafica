@@ -1,8 +1,3 @@
-# Este módulo actúa como registro compartido de widgets.
-# ui.py escribe los atributos aquí al construir la interfaz.
-# actions.py los lee para operar sobre ellos.
-# No instanciar nada aquí: todo llega desde ui.py.
-
 # --- Sliders ---
 brightness_slider = None
 red_slider = None
